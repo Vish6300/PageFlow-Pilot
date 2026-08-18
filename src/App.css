@@ -117,6 +117,26 @@ footer {
   scrollbar-width: thin;
 }
 
+.topic-switcher {
+  padding: 0 0 34px;
+}
+
+.topic-switcher-heading {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.topic-switcher-heading h2 {
+  margin: 0;
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: clamp(1.45rem, 4vw, 1.9rem);
+  letter-spacing: -0.025em;
+}
+
+.topic-switcher .topics {
+  padding-bottom: 0;
+}
+
 .topic-card {
   min-height: 92px;
   padding: 13px;
@@ -710,7 +730,15 @@ footer p {
   }
 
   .reader-section {
-    padding-top: 16px;
+    padding-top: 6px;
+  }
+
+  .topic-switcher {
+    padding-bottom: 30px;
+  }
+
+  .topic-switcher-heading {
+    margin-bottom: 14px;
   }
 
   .reader-canvas {

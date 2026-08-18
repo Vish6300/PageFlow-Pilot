@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getSelectionStage,
   isMeaningfullyEngaged,
   shouldRecordMeaningfulEngagement,
   type EngagementSnapshot,
@@ -44,5 +45,11 @@ describe('meaningful engagement', () => {
         meaningfulRecorded: true,
       }),
     ).toBe(false)
+  })
+
+  it('separates topic selections by journey stage', () => {
+    expect(getSelectionStage(false, 0)).toBe('before_play')
+    expect(getSelectionStage(false, 4)).toBe('during_reading')
+    expect(getSelectionStage(true, 12)).toBe('after_completion')
   })
 })

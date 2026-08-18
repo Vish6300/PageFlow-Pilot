@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import './App.css'
 import { samples } from './content/samples'
-import { initialEngagement, isFeedbackProminent, shouldRecordMeaningfulEngagement } from './lib/engagement'
+import {
+  getSelectionStage,
+  initialEngagement,
+  isFeedbackProminent,
+  shouldRecordMeaningfulEngagement,
+} from './lib/engagement'
 import { PilotAnalytics } from './lib/analytics'
 import { LofiAudio } from './lib/audio'
 import { getSurroundingContext, tokenize } from './lib/reader'
@@ -274,6 +279,10 @@ function App() {
       topic: nextSample.topic,
       previous_sample_id: sample.id,
       elapsed_active_seconds: engagement.activeSeconds,
+      selection_stage: getSelectionStage(
+        completedSample,
+        engagement.activeSeconds,
+      ),
     })
   }
 
@@ -357,23 +366,6 @@ function App() {
           <h1 id="intro-title">Read this story in under a minute.</h1>
           <p>Press play. Keep your eyes on the indigo letter.</p>
         </section>
-
-        <nav className="topics" aria-label="Choose a reading sample">
-          {samples.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              className={index === sampleIndex ? 'topic-card topic-card--active' : 'topic-card'}
-              aria-pressed={index === sampleIndex}
-              aria-label={`${item.topic}: ${item.title}`}
-              disabled={feedbackState === 'sending'}
-              onClick={() => handleSampleSelect(index)}
-            >
-              <span>{item.topic}</span>
-              <strong>{item.title}</strong>
-            </button>
-          ))}
-        </nav>
 
         <section
           className="reader-section"
@@ -504,6 +496,29 @@ function App() {
 
           {audioError && <p className="audio-notice" role="status">{audioError}</p>}
           <p className="keyboard-hint">Tip: press Space to play or pause.</p>
+        </section>
+
+        <section className="topic-switcher" aria-labelledby="topic-switcher-title">
+          <div className="topic-switcher-heading">
+            <p className="kicker">Keep exploring</p>
+            <h2 id="topic-switcher-title">Choose another story.</h2>
+          </div>
+          <nav className="topics" aria-label="Choose a reading sample">
+            {samples.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                className={index === sampleIndex ? 'topic-card topic-card--active' : 'topic-card'}
+                aria-pressed={index === sampleIndex}
+                aria-label={`${item.topic}: ${item.title}`}
+                disabled={feedbackState === 'sending'}
+                onClick={() => handleSampleSelect(index)}
+              >
+                <span>{item.topic}</span>
+                <strong>{item.title}</strong>
+              </button>
+            ))}
+          </nav>
         </section>
 
         <section className={feedbackProminent ? 'feedback feedback--prominent' : 'feedback'} aria-labelledby="feedback-title">

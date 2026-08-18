@@ -69,6 +69,20 @@ where received_at >= :start_at
 group by properties->>'topic'
 order by starts desc, selections desc;
 
+-- Topic switches by journey stage, separating pre-play exploration from
+-- switches made during reading or after completing the current sample.
+select
+  properties->>'selection_stage' as selection_stage,
+  properties->>'topic' as topic,
+  count(*) as selections,
+  count(distinct session_id) as sessions
+from pilot_private.pilot_events
+where received_at >= :start_at
+  and received_at < :end_at
+  and event_name = 'sample_selected'
+group by properties->>'selection_stage', properties->>'topic'
+order by selection_stage, selections desc;
+
 -- Latest sentiment per anonymous session.
 select
   vote,

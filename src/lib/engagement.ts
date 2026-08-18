@@ -32,3 +32,12 @@ export function isFeedbackProminent(snapshot: EngagementSnapshot): boolean {
     snapshot.secondSampleOpened
   )
 }
+
+export function getSelectionStage(
+  completedCurrentSample: boolean,
+  activeSeconds: number,
+): 'before_play' | 'during_reading' | 'after_completion' {
+  if (completedCurrentSample) return 'after_completion'
+  if (activeSeconds > 0) return 'during_reading'
+  return 'before_play'
+}
