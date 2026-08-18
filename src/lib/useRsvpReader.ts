@@ -85,6 +85,7 @@ export function useRsvpReader({
   }, [completedWords, isReset, resetKey, tokens.length])
 
   return {
+    currentIndex: index,
     currentToken: tokens[index],
     currentWordNumber: Math.min(index + 1, tokens.length),
     completedWords,

@@ -4,7 +4,7 @@ import { samples } from './content/samples'
 import { initialEngagement, isFeedbackProminent, shouldRecordMeaningfulEngagement } from './lib/engagement'
 import { PilotAnalytics } from './lib/analytics'
 import { LofiAudio } from './lib/audio'
-import { tokenize } from './lib/reader'
+import { getSurroundingContext, tokenize } from './lib/reader'
 import { useRsvpReader } from './lib/useRsvpReader'
 
 const INITIAL_SAMPLE_KEY = 'pageflow_pilot_initial_sample'
@@ -126,6 +126,10 @@ function App() {
     onProgress: handleProgress,
     onComplete: handleComplete,
   })
+  const surroundingContext = useMemo(
+    () => getSurroundingContext(tokens, reader.currentIndex),
+    [reader.currentIndex, tokens],
+  )
 
   useEffect(() => {
     void analytics.initialize(sample.id).then(() => {
@@ -387,16 +391,30 @@ function App() {
             Full sample transcript: {sample.text}
           </p>
 
-          <div className={reader.isPlaying ? 'reader-stage reader-stage--playing' : 'reader-stage'}>
-            <div className="reader-guide reader-guide--top" aria-hidden="true" />
-            <div className="reader-word" aria-live="off" aria-label={reader.currentToken?.raw}>
-              <span className="word-prefix">{reader.currentToken?.prefix}</span>
-              <span className="word-focus">{reader.currentToken?.focus}</span>
-              <span className="word-suffix">{reader.currentToken?.suffix}</span>
+          <div className={reader.isPlaying ? 'reader-canvas reader-canvas--playing' : 'reader-canvas'}>
+            <div className="reader-context" aria-hidden="true">
+              {surroundingContext.previous || '\u00a0'}
             </div>
-            <div className="reader-guide reader-guide--bottom" aria-hidden="true" />
+
+            <div className="reader-focus-row">
+              <div className="reader-horizontal-guide" aria-hidden="true" />
+              <div className="reader-focus-box">
+                <div className="reader-word" aria-live="off" aria-label={reader.currentToken?.raw}>
+                  <span className="word-prefix">{reader.currentToken?.prefix}</span>
+                  <span className="word-focus">{reader.currentToken?.focus}</span>
+                  <span className="word-suffix">{reader.currentToken?.suffix}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="reader-context" aria-hidden="true">
+              {surroundingContext.next || '\u00a0'}
+            </div>
+
             <p className="reader-position" aria-hidden="true">
-              {reader.currentWordNumber} / {tokens.length}
+              <span>{reader.currentWordNumber} / {tokens.length} words</span>
+              <span>•</span>
+              <span>{Math.round(reader.progress)}%</span>
             </p>
           </div>
 
@@ -418,37 +436,56 @@ function App() {
                 : `Paused at ${Math.round(reader.progress)} percent.`}
           </p>
 
-          <div className="controls">
-            <button
-              type="button"
-              className="icon-button"
-              onClick={handleRestart}
-              aria-label="Restart sample"
-              title="Restart"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                <path d="M3 3v5h5" />
-              </svg>
-            </button>
+          <div className="reader-controls-deck">
+            <label className="speed-control">
+              <output id="speed-value">
+                <strong>{wpm}</strong>
+                <span>WPM</span>
+              </output>
+              <input
+                type="range"
+                min="180"
+                max="600"
+                step="5"
+                value={wpm}
+                onChange={(event) => handleSpeedChange(Number(event.target.value))}
+                aria-label="Reading speed"
+                aria-describedby="speed-value"
+              />
+            </label>
 
-            <button
-              type="button"
-              className="play-button"
-              onClick={handlePlaybackToggle}
-              aria-label={reader.isPlaying ? 'Pause reading' : completedSample ? 'Read again' : 'Play reading'}
-            >
-              {reader.isPlaying ? (
+            <div className="playback-controls">
+              <button
+                type="button"
+                className="icon-button"
+                onClick={handleRestart}
+                aria-label="Restart sample"
+                title="Restart"
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 5v14M15 5v14" />
+                  <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                  <path d="M3 3v5h5" />
                 </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m9 6 9 6-9 6V6Z" />
-                </svg>
-              )}
-              <span>{reader.isPlaying ? 'Pause' : completedSample ? 'Read again' : 'Play'}</span>
-            </button>
+              </button>
+
+              <button
+                type="button"
+                className="play-button"
+                onClick={handlePlaybackToggle}
+                aria-label={reader.isPlaying ? 'Pause reading' : completedSample ? 'Read again' : 'Play reading'}
+                title={reader.isPlaying ? 'Pause (Space)' : 'Play (Space)'}
+              >
+                {reader.isPlaying ? (
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 5v14M15 5v14" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m9 6 9 6-9 6V6Z" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
             <button
               type="button"
@@ -464,20 +501,6 @@ function App() {
               <span>{muted ? 'Music off' : 'Music on'}</span>
             </button>
           </div>
-
-          <label className="speed-control">
-            <span>Speed</span>
-            <input
-              type="range"
-              min="180"
-              max="600"
-              step="5"
-              value={wpm}
-              onChange={(event) => handleSpeedChange(Number(event.target.value))}
-              aria-describedby="speed-value"
-            />
-            <output id="speed-value">{wpm} WPM</output>
-          </label>
 
           {audioError && <p className="audio-notice" role="status">{audioError}</p>}
           <p className="keyboard-hint">Tip: press Space to play or pause.</p>

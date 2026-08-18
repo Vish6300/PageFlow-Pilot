@@ -7,7 +7,7 @@ export type ReaderToken = {
 }
 
 const SENTENCE_END = /[.!?]["'”’)]*$/
-const CLAUSE_END = /[,;:]["'”’)]*$/
+const CLAUSE_END = /[,;:—–]["'”’)]*$/
 
 export function tokenize(text: string): ReaderToken[] {
   return text
@@ -39,10 +39,9 @@ export function getOrpIndex(word: string): number {
 }
 
 export function getDelayMultiplier(word: string): number {
-  if (SENTENCE_END.test(word)) return 2.15
+  if (SENTENCE_END.test(word)) return 2
   if (CLAUSE_END.test(word)) return 1.5
-  if (word.includes('—') || word.includes('–')) return 1.35
-  if (Array.from(word).length >= 11) return 1.15
+  if (Array.from(word).length > 9) return 1.2
   return 1
 }
 
@@ -53,4 +52,20 @@ export function getWordDelayMs(word: ReaderToken, wpm: number): number {
 export function getProgressPercent(completedWords: number, totalWords: number): number {
   if (totalWords <= 0) return 0
   return Math.min(100, Math.max(0, (completedWords / totalWords) * 100))
+}
+
+export function getSurroundingContext(
+  tokens: ReaderToken[],
+  currentIndex: number,
+): { previous: string; next: string } {
+  return {
+    previous: tokens
+      .slice(Math.max(0, currentIndex - 18), currentIndex)
+      .map((token) => token.raw)
+      .join(' '),
+    next: tokens
+      .slice(currentIndex + 1, Math.min(tokens.length, currentIndex + 21))
+      .map((token) => token.raw)
+      .join(' '),
+  }
 }

@@ -3,6 +3,7 @@ import {
   getDelayMultiplier,
   getOrpIndex,
   getProgressPercent,
+  getSurroundingContext,
   tokenize,
 } from './reader'
 
@@ -24,7 +25,8 @@ describe('RSVP reader logic', () => {
 
   it('adds pacing at clauses and sentence endings', () => {
     expect(getDelayMultiplier('pause,')).toBe(1.5)
-    expect(getDelayMultiplier('stop.')).toBe(2.15)
+    expect(getDelayMultiplier('stop.')).toBe(2)
+    expect(getDelayMultiplier('thought—')).toBe(1.5)
     expect(getDelayMultiplier('plain')).toBe(1)
   })
 
@@ -34,5 +36,13 @@ describe('RSVP reader logic', () => {
     expect(getProgressPercent(10, 10)).toBe(100)
     expect(getProgressPercent(11, 10)).toBe(100)
     expect(getProgressPercent(1, 0)).toBe(0)
+  })
+
+  it('provides the same bounded surrounding context as the main reader', () => {
+    const tokens = tokenize('one two three four five')
+    expect(getSurroundingContext(tokens, 2)).toEqual({
+      previous: 'one two',
+      next: 'four five',
+    })
   })
 })
