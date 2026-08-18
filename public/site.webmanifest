@@ -1,0 +1,16 @@
+{
+  "name": "PageFlow Pilot",
+  "short_name": "PageFlow",
+  "description": "A focused RSVP speed-reading experience.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F5",
+  "theme_color": "#4338CA",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
