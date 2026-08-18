@@ -69,8 +69,8 @@ export function RsvpWord({ token }: RsvpWordProps) {
           id={gradientId}
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#78716c" />
-          <stop ref={prefixEndRef} offset="0%" stopColor="#78716c" />
+          <stop offset="0%" stopColor="#a8a29e" />
+          <stop ref={prefixEndRef} offset="0%" stopColor="#a8a29e" />
           <stop ref={focusStartRef} offset="0%" stopColor="#4338ca" />
           <stop ref={focusEndRef} offset="100%" stopColor="#4338ca" />
           <stop ref={suffixStartRef} offset="100%" stopColor="#57534e" />
