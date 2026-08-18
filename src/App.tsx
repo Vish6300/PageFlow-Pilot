@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import './App.css'
 import { samples } from './content/samples'
+import { RsvpWord } from './components/RsvpWord'
 import {
   getSelectionStage,
   initialEngagement,
@@ -391,11 +392,7 @@ function App() {
             <div className="reader-focus-row">
               <div className="reader-horizontal-guide" aria-hidden="true" />
               <div className="reader-focus-box">
-                <div className="reader-word" aria-live="off" aria-label={reader.currentToken?.raw}>
-                  <span className="word-prefix">{reader.currentToken?.prefix}</span>
-                  <span className="word-focus">{reader.currentToken?.focus}</span>
-                  <span className="word-suffix">{reader.currentToken?.suffix}</span>
-                </div>
+                <RsvpWord token={reader.currentToken} />
               </div>
             </div>
 
