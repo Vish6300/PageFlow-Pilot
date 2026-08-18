@@ -12,7 +12,14 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The reader works without environment variables. Anonymous analytics and feedback remain unavailable until Supabase is configured. The full-product CTA stays visible but disabled until `VITE_MAIN_SITE_URL` is set. No production URL was discoverable in the reference app, so there is intentionally no fabricated domain fallback.
+The reader works without environment variables. Anonymous analytics and feedback remain unavailable until Supabase is configured. The full-product CTA uses `VITE_MAIN_SITE_URL` with the verified PageFlow production URL as its fallback.
+
+## Production
+
+- Pilot: <https://pageflow-pilot.vercel.app>
+- Full PageFlow: <https://pageflow-speed-reader.vercel.app>
+- Deployments: connected to the `Vish6300/PageFlow-Pilot` GitHub repository through Vercel
+- Analytics: connected to the existing `pageflow-speed-reader` Supabase project
 
 ## Supabase setup
 
@@ -47,4 +54,4 @@ Tests cover whitespace tokenization, ORP placement, punctuation pacing, completi
 2. Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_MAIN_SITE_URL` for Production and Preview as appropriate.
 3. Deploy. Vercel uses `npm run build`, serves `dist`, and applies the SPA rewrite and security/cache headers from `vercel.json`.
 
-This repository is deployment-ready but does not modify Supabase remotely or initiate a Vercel deployment.
+The Supabase migration has been applied and the Vercel production, preview, and development environments are configured.

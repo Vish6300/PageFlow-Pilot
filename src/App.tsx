@@ -17,7 +17,10 @@ const INITIAL_SAMPLE_KEY = 'pageflow_pilot_initial_sample'
 const MUTE_KEY = 'pageflow_pilot_muted'
 const DEFAULT_WPM = 325
 const MILESTONES = [25, 50, 75, 100] as const
-const mainSiteUrl = (import.meta.env.VITE_MAIN_SITE_URL ?? '').trim()
+const mainSiteUrl = (
+  import.meta.env.VITE_MAIN_SITE_URL ||
+  'https://pageflow-speed-reader.vercel.app'
+).trim()
 
 function getInitialSampleIndex(): number {
   const stored = sessionStorage.getItem(INITIAL_SAMPLE_KEY)
