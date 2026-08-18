@@ -437,7 +437,7 @@ function App() {
               <input
                 type="range"
                 min="180"
-                max="600"
+                max="800"
                 step="5"
                 value={wpm}
                 onChange={(event) => handleSpeedChange(Number(event.target.value))}
