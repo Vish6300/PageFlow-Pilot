@@ -110,7 +110,7 @@ footer {
   width: 100%;
   max-width: 100%;
   display: grid;
-  grid-template-columns: repeat(5, minmax(145px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   padding: 0 0 26px;
   overflow-x: auto;
@@ -678,21 +678,31 @@ footer p {
   }
 
   .topics {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 4px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
     overflow: visible;
   }
 
   .topic-card {
-    min-height: 62px;
-    padding: 7px 3px;
+    grid-column: span 2;
+    min-height: 44px;
+    padding: 8px 6px;
+    border-radius: 999px;
     text-align: center;
+  }
+
+  .topic-card:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .topic-card:nth-child(5) {
+    grid-column: 4 / span 2;
   }
 
   .topic-card span {
     margin: 0;
-    font-size: clamp(0.52rem, 2.45vw, 0.62rem);
-    letter-spacing: 0.01em;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
   }
 
   .topic-card strong {
