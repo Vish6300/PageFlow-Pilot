@@ -293,7 +293,9 @@ footer {
   font-family: 'Newsreader', Georgia, serif;
   font-size: clamp(3rem, 7vw, 4.5rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  letter-spacing: -0.02em;
   line-height: 1;
   white-space: nowrap;
 }
@@ -311,7 +313,7 @@ footer {
 }
 
 .word-focus {
-  padding: 0 0.02em;
+  padding: 0;
   color: var(--indigo);
 }
 
