@@ -10,7 +10,7 @@ import {
 } from './lib/engagement'
 import { PilotAnalytics } from './lib/analytics'
 import { LofiAudio } from './lib/audio'
-import { getSurroundingContext, tokenize } from './lib/reader'
+import { getReadingLine, tokenize } from './lib/reader'
 import { useRsvpReader } from './lib/useRsvpReader'
 
 const INITIAL_SAMPLE_KEY = 'pageflow_pilot_initial_sample'
@@ -138,8 +138,8 @@ function App() {
     onProgress: handleProgress,
     onComplete: handleComplete,
   })
-  const surroundingContext = useMemo(
-    () => getSurroundingContext(tokens, reader.currentIndex),
+  const readingLine = useMemo(
+    () => getReadingLine(tokens, reader.currentIndex),
     [reader.currentIndex, tokens],
   )
 
@@ -386,7 +386,7 @@ function App() {
         <section className="intro" aria-labelledby="intro-title">
           <p className="kicker">A faster way through your reading list</p>
           <h1 id="intro-title">Read this story in under a minute.</h1>
-          <p>Press play. Keep your eyes on the indigo letter.</p>
+          <p>Press play. Keep your eyes on the red dot.</p>
         </section>
 
         <section
@@ -406,19 +406,16 @@ function App() {
           </p>
 
           <div className={reader.isPlaying ? 'reader-canvas reader-canvas--playing' : 'reader-canvas'}>
-            <div className="reader-context" aria-hidden="true">
-              {surroundingContext.previous || '\u00a0'}
-            </div>
-
             <div className="reader-focus-row">
               <div className="reader-horizontal-guide" aria-hidden="true" />
               <div className="reader-focus-box">
+                <span className="reader-fixation-dot" aria-hidden="true" />
                 <RsvpWord token={reader.currentToken} />
               </div>
             </div>
 
-            <div className="reader-context" aria-hidden="true">
-              {surroundingContext.next || '\u00a0'}
+            <div className="reader-context-line" aria-hidden="true">
+              {readingLine || '\u00a0'}
             </div>
 
             <p className="reader-position" aria-hidden="true">

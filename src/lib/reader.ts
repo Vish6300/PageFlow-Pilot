@@ -54,18 +54,19 @@ export function getProgressPercent(completedWords: number, totalWords: number): 
   return Math.min(100, Math.max(0, (completedWords / totalWords) * 100))
 }
 
-export function getSurroundingContext(
+export function getReadingLine(
   tokens: ReaderToken[],
   currentIndex: number,
-): { previous: string; next: string } {
-  return {
-    previous: tokens
-      .slice(Math.max(0, currentIndex - 18), currentIndex)
-      .map((token) => token.raw)
-      .join(' '),
-    next: tokens
-      .slice(currentIndex + 1, Math.min(tokens.length, currentIndex + 21))
-      .map((token) => token.raw)
-      .join(' '),
-  }
+  requestedWordsPerLine = 8,
+): string {
+  if (tokens.length === 0) return ''
+
+  const wordsPerLine = Math.min(10, Math.max(7, requestedWordsPerLine))
+  const safeIndex = Math.min(tokens.length - 1, Math.max(0, currentIndex))
+  const lineStart = Math.floor(safeIndex / wordsPerLine) * wordsPerLine
+
+  return tokens
+    .slice(lineStart, lineStart + wordsPerLine)
+    .map((token) => token.raw)
+    .join(' ')
 }
