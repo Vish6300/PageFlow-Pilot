@@ -3,6 +3,8 @@ type WebkitWindow = Window &
     webkitAudioContext?: typeof AudioContext
   }
 
+const PLAYING_GAIN = 0.78
+
 export class LofiAudio {
   private context: AudioContext | null = null
   private master: GainNode | null = null
@@ -26,8 +28,15 @@ export class LofiAudio {
     if (!this.context) {
       this.context = new AudioContextClass()
       this.master = this.context.createGain()
-      this.master.gain.value = this.muted ? 0 : 0.34
-      this.master.connect(this.context.destination)
+      const compressor = this.context.createDynamicsCompressor()
+      compressor.threshold.value = -12
+      compressor.knee.value = 12
+      compressor.ratio.value = 4
+      compressor.attack.value = 0.01
+      compressor.release.value = 0.2
+      this.master.gain.value = this.muted ? 0 : PLAYING_GAIN
+      this.master.connect(compressor)
+      compressor.connect(this.context.destination)
     }
 
     const context = this.context
@@ -60,7 +69,7 @@ export class LofiAudio {
 
     if (this.timer !== null) return
 
-    master.gain.value = this.muted ? 0 : 0.34
+    master.gain.value = this.muted ? 0 : PLAYING_GAIN
     this.playBeat()
     this.timer = window.setInterval(() => this.playBeat(), 1_050)
   }
@@ -92,7 +101,7 @@ export class LofiAudio {
     if (!this.context || !this.master) return
 
     this.master.gain.setTargetAtTime(
-      muted ? 0 : 0.34,
+      muted || !this.shouldPlay ? 0 : PLAYING_GAIN,
       this.context.currentTime,
       0.04,
     )
@@ -119,15 +128,15 @@ export class LofiAudio {
 
     if (this.beat % 4 === 0) {
       chord.forEach((frequency, index) => {
-        this.playTone(frequency, now, 4.15, index === 0 ? 0.026 : 0.015)
+        this.playTone(frequency, now, 4.15, index === 0 ? 0.055 : 0.033)
       })
     }
 
     if (this.beat % 2 === 0) {
-      this.playTone(chord[0] / 2, now, 0.7, 0.018)
+      this.playTone(chord[0] / 2, now, 0.7, 0.035)
     }
 
-    this.playNoise(now, this.beat % 2 === 0 ? 0.01 : 0.006)
+    this.playNoise(now, this.beat % 2 === 0 ? 0.018 : 0.012)
     this.beat += 1
   }
 

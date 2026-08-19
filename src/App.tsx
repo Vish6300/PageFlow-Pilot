@@ -16,6 +16,9 @@ import { useRsvpReader } from './lib/useRsvpReader'
 const INITIAL_SAMPLE_KEY = 'pageflow_pilot_initial_sample'
 const MUTE_KEY = 'pageflow_pilot_muted'
 const DEFAULT_WPM = 325
+const MIN_WPM = 200
+const MAX_WPM = 800
+const WPM_STEP = 25
 const MILESTONES = [25, 50, 75, 100] as const
 const mainSiteUrl = (
   import.meta.env.VITE_MAIN_SITE_URL ||
@@ -263,7 +266,10 @@ function App() {
     setCompletedSample(false)
   }
 
-  const handleSampleSelect = (nextIndex: number) => {
+  const handleSampleSelect = (
+    nextIndex: number,
+    selectionMethod: 'topic' | 'shuffle' = 'topic',
+  ) => {
     if (nextIndex === sampleIndex || feedbackRequestInFlight.current) return
 
     reader.pause()
@@ -282,12 +288,23 @@ function App() {
       sample_id: nextSample.id,
       topic: nextSample.topic,
       previous_sample_id: sample.id,
+      selection_method: selectionMethod,
       elapsed_active_seconds: engagement.activeSeconds,
       selection_stage: getSelectionStage(
         completedSample,
         engagement.activeSeconds,
       ),
     })
+  }
+
+  const handleShuffle = () => {
+    const otherSampleIndexes = samples
+      .map((_, index) => index)
+      .filter((index) => index !== sampleIndex)
+    const randomIndex =
+      crypto.getRandomValues(new Uint32Array(1))[0] % otherSampleIndexes.length
+
+    handleSampleSelect(otherSampleIndexes[randomIndex], 'shuffle')
   }
 
   const handleMute = () => {
@@ -312,21 +329,22 @@ function App() {
   }
 
   const handleSpeedChange = (nextWpm: number) => {
-    setWpm(nextWpm)
+    const clampedWpm = Math.min(MAX_WPM, Math.max(MIN_WPM, nextWpm))
+    setWpm(clampedWpm)
     if (speedCommitTimer.current !== null) {
       window.clearTimeout(speedCommitTimer.current)
     }
 
     speedCommitTimer.current = window.setTimeout(() => {
-      if (nextWpm === lastCommittedWpm.current) {
+      if (clampedWpm === lastCommittedWpm.current) {
         speedCommitTimer.current = null
         return
       }
 
-      lastCommittedWpm.current = nextWpm
+      lastCommittedWpm.current = clampedWpm
       analytics.track('speed_changed', {
         sample_id: sample.id,
-        wpm: nextWpm,
+        wpm: clampedWpm,
         elapsed_active_seconds: engagement.activeSeconds,
       })
       speedCommitTimer.current = null
@@ -429,22 +447,30 @@ function App() {
           </p>
 
           <div className="reader-controls-deck">
-            <label className="speed-control">
-              <output id="speed-value">
+            <div className="speed-control" role="group" aria-label="Reading speed">
+              <button
+                type="button"
+                onClick={() => handleSpeedChange(wpm - WPM_STEP)}
+                disabled={wpm <= MIN_WPM}
+                aria-label={`Decrease speed by ${WPM_STEP} words per minute`}
+                aria-describedby="speed-value"
+              >
+                <span aria-hidden="true">−</span>
+              </button>
+              <output id="speed-value" aria-live="polite">
                 <strong>{wpm}</strong>
                 <span>WPM</span>
               </output>
-              <input
-                type="range"
-                min="180"
-                max="800"
-                step="5"
-                value={wpm}
-                onChange={(event) => handleSpeedChange(Number(event.target.value))}
-                aria-label="Reading speed"
+              <button
+                type="button"
+                onClick={() => handleSpeedChange(wpm + WPM_STEP)}
+                disabled={wpm >= MAX_WPM}
+                aria-label={`Increase speed by ${WPM_STEP} words per minute`}
                 aria-describedby="speed-value"
-              />
-            </label>
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+            </div>
 
             <div className="playback-controls">
               <button
@@ -476,6 +502,23 @@ function App() {
                     <path d="m9 6 9 6-9 6V6Z" />
                   </svg>
                 )}
+              </button>
+
+              <button
+                type="button"
+                className="icon-button"
+                onClick={handleShuffle}
+                disabled={feedbackState === 'sending'}
+                aria-label="Shuffle to another sample"
+                title="Shuffle sample"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 7h3.5c4.5 0 6.5 10 11 10H21" />
+                  <path d="m18 14 3 3-3 3" />
+                  <path d="M3 17h3.5c1.6 0 2.9-1.3 4-3" />
+                  <path d="M13.5 9c1.2-1.2 2.5-2 4-2H21" />
+                  <path d="m18 4 3 3-3 3" />
+                </svg>
               </button>
             </div>
 

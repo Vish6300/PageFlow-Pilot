@@ -336,6 +336,7 @@ footer {
   min-height: 88px;
   display: grid;
   grid-template-columns: minmax(155px, 1fr) auto minmax(155px, 1fr);
+  grid-template-areas: "speed playback music";
   align-items: center;
   gap: 24px;
   padding: 15px 20px;
@@ -348,6 +349,7 @@ footer {
 }
 
 .playback-controls {
+  grid-area: playback;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -387,6 +389,13 @@ footer {
   transform: scale(1.04);
 }
 
+.icon-button:disabled,
+.speed-control button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+  transform: none;
+}
+
 .play-button {
   width: 56px;
   height: 56px;
@@ -404,6 +413,7 @@ footer {
 }
 
 .mute-button {
+  grid-area: music;
   justify-self: end;
   gap: 7px;
   padding: 0 15px;
@@ -422,21 +432,38 @@ footer {
 }
 
 .speed-control {
-  display: grid;
-  grid-template-columns: auto minmax(72px, 130px);
+  grid-area: speed;
+  display: flex;
   align-items: center;
   justify-self: start;
-  gap: 12px;
+  gap: 7px;
   color: var(--muted);
   font-weight: 600;
 }
 
-.speed-control input {
-  width: 100%;
-  accent-color: var(--indigo);
+.speed-control button {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: white;
+  font: 500 1.35rem/1 var(--font-ui);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.speed-control button:hover:not(:disabled) {
+  border-color: #c7c2b9;
+  background: #f5f3ee;
+  transform: translateY(-1px);
 }
 
 .speed-control output {
+  min-width: 45px;
   display: flex;
   flex-direction: column;
   color: var(--ink);
@@ -758,15 +785,18 @@ footer p {
   }
 
   .reader-controls-deck {
-    min-height: 78px;
-    grid-template-columns: minmax(88px, 1fr) auto minmax(88px, 1fr);
-    gap: 8px;
-    padding: 12px 8px;
+    min-height: 132px;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "speed music"
+      "playback playback";
+    row-gap: 8px;
+    padding: 10px 12px 12px;
     border-radius: 0 0 16px 16px;
   }
 
   .playback-controls {
-    gap: 5px;
+    gap: 8px;
   }
 
   .playback-controls button {
@@ -781,12 +811,7 @@ footer p {
   }
 
   .speed-control {
-    grid-template-columns: auto 1fr;
-    gap: 6px;
-  }
-
-  .speed-control input {
-    width: 48px;
+    gap: 5px;
   }
 
   .speed-control output strong {
