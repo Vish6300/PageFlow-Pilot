@@ -26,11 +26,25 @@ export function RsvpWord({ token }: RsvpWordProps) {
     const measure = () => {
       if (cancelled || svg.clientWidth === 0) return
 
+      const baseFontSize = Number.parseFloat(getComputedStyle(svg).fontSize)
+      text.style.fontSize = `${baseFontSize}px`
       text.setAttribute('x', '0')
       const focusIndex = token.prefix.length
-      const wordWidth = text.getComputedTextLength()
-      const focusStart = text.getStartPositionOfChar(focusIndex).x
-      const focusEnd = text.getEndPositionOfChar(focusIndex).x
+      let wordWidth = text.getComputedTextLength()
+      let focusStart = text.getStartPositionOfChar(focusIndex).x
+      let focusEnd = text.getEndPositionOfChar(focusIndex).x
+      const focusCenter = (focusStart + focusEnd) / 2
+      const largestSide = Math.max(focusCenter, wordWidth - focusCenter)
+      const availableSide = svg.clientWidth / 2 - 6
+      const fitScale = Math.min(1, availableSide / largestSide)
+
+      if (fitScale < 1) {
+        text.style.fontSize = `${baseFontSize * fitScale}px`
+        wordWidth = text.getComputedTextLength()
+        focusStart = text.getStartPositionOfChar(focusIndex).x
+        focusEnd = text.getEndPositionOfChar(focusIndex).x
+      }
+
       const translation = svg.clientWidth / 2 - (focusStart + focusEnd) / 2
       const prefixOffset = `${(focusStart / wordWidth) * 100}%`
       const focusOffset = `${(focusEnd / wordWidth) * 100}%`
