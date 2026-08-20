@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import './App.css'
 import { samples } from './content/samples'
 import { ReadAlongText } from './components/ReadAlongText'
+import { RsvpWord } from './components/RsvpWord'
 import {
   getSelectionStage,
   initialEngagement,
@@ -419,6 +420,14 @@ function App() {
               currentIndex={reader.currentIndex}
               onWordSelect={handleWordSelect}
             />
+
+            <div className="rsvp-companion" aria-label="Fast focus word">
+              <span className="rsvp-companion-label">Speed focus</span>
+              <div className="rsvp-companion-box">
+                <span className="reader-fixation-dot" aria-hidden="true" />
+                <RsvpWord token={reader.currentToken} />
+              </div>
+            </div>
 
             <p className="reader-position" aria-hidden="true">
               <span>{reader.currentWordNumber} / {tokens.length} words</span>

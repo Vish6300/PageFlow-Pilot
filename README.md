@@ -1,6 +1,6 @@
 # PageFlow Pilot
 
-A lightweight, mobile-first read-along sandbox designed for fast social and in-app-browser visits. It carries PageFlow's editorial cream/stone palette, serif-led branding, full-document active-word highlighting, and punctuation-aware pacing into a purpose-built static pilot.
+A lightweight, mobile-first hybrid reading sandbox designed for fast social and in-app-browser visits. It pairs full-document active-word highlighting with a synchronized ORP-centered speed-focus strip, while carrying PageFlow's editorial cream/stone palette, serif-led branding, and punctuation-aware pacing into a purpose-built static pilot.
 
 ## Local development
 
