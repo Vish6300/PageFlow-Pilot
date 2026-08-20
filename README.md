@@ -1,6 +1,6 @@
 # PageFlow Pilot
 
-A lightweight, mobile-first RSVP reading sandbox designed for fast social and in-app-browser visits. It carries PageFlow's editorial cream/stone palette, serif-led branding, indigo optimal recognition point (ORP), and punctuation-aware pacing into a purpose-built static pilot.
+A lightweight, mobile-first read-along sandbox designed for fast social and in-app-browser visits. It carries PageFlow's editorial cream/stone palette, serif-led branding, full-document active-word highlighting, and punctuation-aware pacing into a purpose-built static pilot.
 
 ## Local development
 
@@ -46,7 +46,7 @@ npm run lint
 npm run build
 ```
 
-Tests cover whitespace tokenization, ORP placement, punctuation pacing, completion progress, the meaningful-engagement threshold, and event deduplication.
+Tests cover whitespace tokenization, sentence grouping, ORP logic retained for future modes, punctuation pacing, completion progress, the meaningful-engagement threshold, and event deduplication.
 
 ## Deploy to Vercel
 

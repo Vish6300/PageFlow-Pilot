@@ -6,6 +6,11 @@ export type ReaderToken = {
   delayMultiplier: number
 }
 
+export type SentenceRange = {
+  start: number
+  end: number
+}
+
 const SENTENCE_END = /[.!?]["'”’)]*$/
 const CLAUSE_END = /[,;:—–]["'”’)]*$/
 
@@ -54,19 +59,20 @@ export function getProgressPercent(completedWords: number, totalWords: number): 
   return Math.min(100, Math.max(0, (completedWords / totalWords) * 100))
 }
 
-export function getReadingLine(
-  tokens: ReaderToken[],
-  currentIndex: number,
-  requestedWordsPerLine = 8,
-): string {
-  if (tokens.length === 0) return ''
+export function getSentenceRanges(tokens: ReaderToken[]): SentenceRange[] {
+  const ranges: SentenceRange[] = []
+  let start = 0
 
-  const wordsPerLine = Math.min(10, Math.max(7, requestedWordsPerLine))
-  const safeIndex = Math.min(tokens.length - 1, Math.max(0, currentIndex))
-  const lineStart = Math.floor(safeIndex / wordsPerLine) * wordsPerLine
+  tokens.forEach((token, index) => {
+    if (!SENTENCE_END.test(token.raw)) return
 
-  return tokens
-    .slice(lineStart, lineStart + wordsPerLine)
-    .map((token) => token.raw)
-    .join(' ')
+    ranges.push({ start, end: index + 1 })
+    start = index + 1
+  })
+
+  if (start < tokens.length) {
+    ranges.push({ start, end: tokens.length })
+  }
+
+  return ranges
 }

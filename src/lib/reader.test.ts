@@ -3,7 +3,7 @@ import {
   getDelayMultiplier,
   getOrpIndex,
   getProgressPercent,
-  getReadingLine,
+  getSentenceRanges,
   tokenize,
 } from './reader'
 
@@ -38,18 +38,14 @@ describe('RSVP reader logic', () => {
     expect(getProgressPercent(1, 0)).toBe(0)
   })
 
-  it('keeps an eight-word context line stable until the next block', () => {
-    const tokens = tokenize('one two three four five six seven eight nine ten eleven')
+  it('groups tokens into complete sentences and retains a trailing fragment', () => {
+    const tokens = tokenize('One short sentence. Is this another? A trailing fragment')
 
-    expect(getReadingLine(tokens, 0)).toBe('one two three four five six seven eight')
-    expect(getReadingLine(tokens, 7)).toBe('one two three four five six seven eight')
-    expect(getReadingLine(tokens, 8)).toBe('nine ten eleven')
-  })
-
-  it('keeps configurable context lines between seven and ten words', () => {
-    const tokens = tokenize('one two three four five six seven eight nine ten eleven')
-
-    expect(getReadingLine(tokens, 6, 2)).toBe('one two three four five six seven')
-    expect(getReadingLine(tokens, 9, 20)).toBe('one two three four five six seven eight nine ten')
+    expect(getSentenceRanges(tokens)).toEqual([
+      { start: 0, end: 3 },
+      { start: 3, end: 6 },
+      { start: 6, end: 9 },
+    ])
+    expect(getSentenceRanges([])).toEqual([])
   })
 })

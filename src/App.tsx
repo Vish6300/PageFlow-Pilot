@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import './App.css'
 import { samples } from './content/samples'
-import { RsvpWord } from './components/RsvpWord'
+import { ReadAlongText } from './components/ReadAlongText'
 import {
   getSelectionStage,
   initialEngagement,
@@ -10,7 +10,7 @@ import {
 } from './lib/engagement'
 import { PilotAnalytics } from './lib/analytics'
 import { LofiAudio } from './lib/audio'
-import { getReadingLine, tokenize } from './lib/reader'
+import { tokenize } from './lib/reader'
 import { useRsvpReader } from './lib/useRsvpReader'
 
 const INITIAL_SAMPLE_KEY = 'pageflow_pilot_initial_sample'
@@ -138,10 +138,6 @@ function App() {
     onProgress: handleProgress,
     onComplete: handleComplete,
   })
-  const readingLine = useMemo(
-    () => getReadingLine(tokens, reader.currentIndex),
-    [reader.currentIndex, tokens],
-  )
 
   useEffect(() => {
     void analytics.initialize(sample.id).then(() => {
@@ -203,13 +199,7 @@ function App() {
     }
   }, [])
 
-  const handlePlaybackToggle = () => {
-    if (reader.isPlaying) {
-      reader.toggle()
-      audio.current.pause()
-      return
-    }
-
+  const beginPlayback = () => {
     setCompletedSample(false)
     setAudioError('')
 
@@ -236,6 +226,16 @@ function App() {
       })
     }
 
+  }
+
+  const handlePlaybackToggle = () => {
+    if (reader.isPlaying) {
+      reader.toggle()
+      audio.current.pause()
+      return
+    }
+
+    beginPlayback()
     reader.toggle()
   }
 
@@ -264,6 +264,15 @@ function App() {
     reader.restart()
     audio.current.pause()
     setCompletedSample(false)
+  }
+
+  const handleWordSelect = (index: number) => {
+    if (!reader.isPlaying) {
+      beginPlayback()
+    }
+
+    setCompletedSample(false)
+    reader.seek(index, true)
   }
 
   const handleSampleSelect = (
@@ -386,13 +395,12 @@ function App() {
         <section className="intro" aria-labelledby="intro-title">
           <p className="kicker">A faster way through your reading list</p>
           <h1 id="intro-title">Read this story in under a minute.</h1>
-          <p>Press play. Keep your eyes on the red dot.</p>
+          <p>Press play and follow the highlight through the story.</p>
         </section>
 
         <section
           className="reader-section"
           aria-labelledby="sample-title"
-          aria-describedby={`sample-transcript-${sample.id}`}
         >
           <div className="story-heading">
             <div>
@@ -401,22 +409,16 @@ function App() {
             </div>
             <span>{tokens.length} words</span>
           </div>
-          <p id={`sample-transcript-${sample.id}`} className="sr-only">
-            Full sample transcript: {sample.text}
-          </p>
-
           <div className={reader.isPlaying ? 'reader-canvas reader-canvas--playing' : 'reader-canvas'}>
-            <div className="reader-focus-row">
-              <div className="reader-horizontal-guide" aria-hidden="true" />
-              <div className="reader-focus-box">
-                <span className="reader-fixation-dot" aria-hidden="true" />
-                <RsvpWord token={reader.currentToken} />
-              </div>
+            <div className="read-along-heading">
+              <span>Read along</span>
+              <span>Tap any word to start there</span>
             </div>
-
-            <div className="reader-context-line" aria-hidden="true">
-              {readingLine || '\u00a0'}
-            </div>
+            <ReadAlongText
+              tokens={tokens}
+              currentIndex={reader.currentIndex}
+              onWordSelect={handleWordSelect}
+            />
 
             <p className="reader-position" aria-hidden="true">
               <span>{reader.currentWordNumber} / {tokens.length} words</span>

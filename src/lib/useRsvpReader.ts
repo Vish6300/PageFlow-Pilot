@@ -24,7 +24,9 @@ export function useRsvpReader({
   const [storedIndex, setIndex] = useState(0)
   const [storedCompletedWords, setCompletedWords] = useState(0)
   const [storedIsPlaying, setIsPlaying] = useState(false)
+  const [timingGeneration, setTimingGeneration] = useState(0)
   const completionCalled = useRef(false)
+  const completedWordIndexes = useRef(new Set<number>())
   const onProgressRef = useRef(onProgress)
   const onCompleteRef = useRef(onComplete)
   const isReset = stateKey !== resetKey
@@ -37,12 +39,18 @@ export function useRsvpReader({
     onCompleteRef.current = onComplete
   }, [onComplete, onProgress])
 
+  useEffect(() => {
+    completedWordIndexes.current.clear()
+  }, [resetKey])
+
   const restart = useCallback(() => {
     setStateKey(resetKey)
     setIsPlaying(false)
     setIndex(0)
     setCompletedWords(0)
+    setTimingGeneration((generation) => generation + 1)
     completionCalled.current = false
+    completedWordIndexes.current.clear()
     onProgressRef.current(0)
   }, [resetKey])
 
@@ -51,7 +59,11 @@ export function useRsvpReader({
 
     const timeout = window.setTimeout(() => {
       const nextCompleted = Math.min(index + 1, tokens.length)
-      const progress = getProgressPercent(nextCompleted, tokens.length)
+      completedWordIndexes.current.add(index)
+      const progress = getProgressPercent(
+        completedWordIndexes.current.size,
+        tokens.length,
+      )
       setCompletedWords(nextCompleted)
       onProgressRef.current(progress)
 
@@ -68,13 +80,14 @@ export function useRsvpReader({
     }, getWordDelayMs(tokens[index], wpm))
 
     return () => window.clearTimeout(timeout)
-  }, [index, isPlaying, tokens, wpm])
+  }, [index, isPlaying, timingGeneration, tokens, wpm])
 
   const toggle = useCallback(() => {
     if (isReset || completedWords >= tokens.length) {
       setStateKey(resetKey)
       setIndex(0)
       setCompletedWords(0)
+      completedWordIndexes.current.clear()
       completionCalled.current = false
       onProgressRef.current(0)
       setIsPlaying(true)
@@ -83,6 +96,21 @@ export function useRsvpReader({
 
     setIsPlaying((playing) => !playing)
   }, [completedWords, isReset, resetKey, tokens.length])
+
+  const seek = useCallback((nextIndex: number, play = isPlaying) => {
+    if (tokens.length === 0) return
+
+    const safeIndex = Math.min(tokens.length - 1, Math.max(0, nextIndex))
+    if (isReset) {
+      completedWordIndexes.current.clear()
+    }
+    setStateKey(resetKey)
+    setIndex(safeIndex)
+    setCompletedWords(safeIndex)
+    setIsPlaying(play)
+    setTimingGeneration((generation) => generation + 1)
+    completionCalled.current = false
+  }, [isPlaying, isReset, resetKey, tokens.length])
 
   return {
     currentIndex: index,
@@ -93,6 +121,7 @@ export function useRsvpReader({
     isPlaying,
     toggle,
     restart,
+    seek,
     pause: () => {
       setStateKey(resetKey)
       setIsPlaying(false)
