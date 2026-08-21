@@ -54,14 +54,20 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
   color: var(--ink);
   font-size: 0.76rem;
   font-weight: 600;
   text-decoration: none;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
 }
 
 .main-link:hover {
+  border-color: #c7c2b9;
   color: var(--indigo);
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .main-link--disabled {
@@ -448,14 +454,15 @@ footer {
 }
 
 .icon-button {
-  border: 0;
+  border: 1px solid var(--line);
   border-radius: 12px;
   color: #44403c;
   background: transparent;
-  transition: background 150ms ease, transform 150ms ease;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 }
 
 .icon-button:hover {
+  border-color: #c7c2b9;
   background: rgba(28, 25, 23, 0.05);
   transform: scale(1.04);
 }
@@ -470,7 +477,7 @@ footer {
 .play-button {
   width: 56px;
   height: 56px;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 12px;
   color: white;
   background: #0f172a;
@@ -660,7 +667,7 @@ footer {
 .feedback-submit-row button {
   min-width: 118px;
   min-height: 44px;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   color: white;
   background: var(--ink);
@@ -721,6 +728,7 @@ footer {
 
 .final-cta .main-link {
   flex: none;
+  border-color: rgba(255, 255, 255, 0.32);
   color: white;
 }
 
@@ -728,6 +736,7 @@ footer {
   min-height: 48px;
   padding: 0 18px;
   border-radius: 999px;
+  border-color: white;
   color: var(--ink) !important;
   background: white;
 }
